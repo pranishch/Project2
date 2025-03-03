@@ -1,11 +1,9 @@
 import os
 import django
-import time
-
+import time #as sleep_time
 import csv
-
 import subprocess
-from datetime import datetime
+from datetime import datetime #, time
 from seleniumwire import webdriver  # Importing Selenium Wire
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -16,6 +14,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 from pytz import timezone
 from .models import StockData  # Django model
 import webbrowser
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
+
+
 # List of proxy IP addresses
 PROXIES = [
    
@@ -295,7 +297,6 @@ PROXIES = [
     # "222.129.36.115:57114",
     # "222.129.38.21:57114",
     # "222.129.37.77:57114",
-    # "174.64.199.79:4145",
     # "117.68.147.8:3000",
     # "184.185.2.45:4145",
     # "123.56.89.191:1081",
@@ -314,13 +315,11 @@ PROXIES = [
     # "119.187.146.163:1080",
     # "43.224.10.43:6667",
     # "43.224.8.116:6667",
-    # "174.75.211.222:4145",
     # "98.190.102.40:4145",
     # "208.113.222.205:57226",
-    # "72.195.34.41:4145",
     # "175.24.2.65:1080",
     # "220.248.188.75:17211",
-    # "192.252.215.5:16137",
+    #checked
     # "24.249.199.4:4145",
     # "222.129.36.92:57114",
     # "66.135.227.178:4145",
@@ -383,41 +382,52 @@ PROXIES = [
     # "119.81.189.194:8123",
     # "3.24.178.81:80",
     # "119.81.71.27:80",
-    "119.81.71.27:8123",
-    "185.236.203.208:3128",
+    # "119.81.71.27:8123",
+    # "185.236.203.208:3128",
 
-    "192.111.129.150:4145",#accepted
-    "192.111.130.2:4145",#accepted
-    "192.111.139.162:4145",#accepted
-    "192.111.137.35:4145",#accepted
-    "72.195.114.169:4145",#accepted
-    "174.77.111.197:4145",#accepted
-    "184.181.217.210:4145",#accepted
-    "198.8.94.170:4145",#accepted
+    "72.195.34.41:4145",#accepted
     "72.195.34.42:4145",#accepted
-    "184.178.172.18:15280", #accepted
-    "184.178.172.14:4145",#accepted
-    "184.178.172.18:15280",#accepted
-    "192.252.209.155:14455",#accepted
-    "184.178.172.5:15303",#accepted
+    "72.195.114.169:4145",#accepted
+    "174.64.199.79:4145",#accepted
+    "174.75.211.222:4145",#accepted
+    # "174.77.111.197:4145",#accepted
+    # "184.178.172.14:4145",#accepted
+    # "184.181.217.210:4145",#accepted
+    # "192.111.129.150:4145",#accepted
+    # "192.111.130.2:4145",#accepted
+    # "192.111.137.35:4145",#accepted
+    # "192.111.139.162:4145",#accepted
+    # "198.8.94.170:4145",#accepted
+    # "192.252.209.155:14455",#accepted
+    # "184.178.172.18:15280",#accepted
+    # "184.178.172.18:15280", #accepted
+    # "184.178.172.5:15303",#accepted
+    # "192.252.215.5:16137",#accepted
 ]
 
 CHROMEDRIVER_PATH = r"c:\Users\Arjun\Desktop\project2\chromedriver.exe"  # Update this path
 
-def create_driver(proxy):
+
+def create_driver():
     """Creates a Selenium Wire WebDriver instance with a proxy."""
     options = webdriver.ChromeOptions()
     seleniumwire_options = {
-        "proxy": {
-            "http": f"socks5://{proxy}",
-            "https": f"socks5://{proxy}",
-        }
+        # "proxy": {
+        #     "http": f"socks5://{proxy}",
+        #     "https": f"socks5://{proxy}",
+        # }
     }
     
     service = Service(executable_path=CHROMEDRIVER_PATH)  # Use the custom path
     driver = webdriver.Chrome(service=service, options=options, seleniumwire_options=seleniumwire_options)
     return driver
 
+def change_proxy(driver, proxy):
+    driver.proxy= {
+            "http": f"socks5://{proxy}",
+            "https": f"socks5://{proxy}",
+        }
+    
 def log_results_to_csv(results):
     """Logs results to a CSV file."""
     with open("proxy_results.csv", mode='a', newline='') as file:
@@ -426,13 +436,27 @@ def log_results_to_csv(results):
 
 def scrape_nepse_data():
     """Scrapes stock price data from NEPSE using rotating proxies."""
+    # start_time = time(17, 39)  # 11:00 AM
+    # stop_time = time(17, 32)  # 3:00 PM
+
+#   # Wait until 11:00 AM to start scraping
+#     while datetime.now().time() < start_time:
+#         print(f"Waiting until 11:00 AM to start scraping. Current time: {datetime.now().time()}")
+#         sleep_time.sleep(60)  # Check every minute
+
+#     print("Scraping started at 11:00 AM.")
+
+    driver = create_driver()
     for proxy in PROXIES:
+         # Check if the current time is past 3:00 PM
+        # if datetime.now().time() >= stop_time:
+        #     print("Scraping stopped as it is past 3:00 PM.")
+        #     break
+        change_proxy(driver,proxy)
         print(f"Using Proxy: {proxy}")
-        driver = None  # Initialize driver variable
         status = "Error: Initialization"  # Default status
 
         try:
-            driver = create_driver(proxy)
             driver.get("https://www.nepalstock.com/today-price")
             print("Waiting for page to load...")
             time.sleep(10)
@@ -491,17 +515,19 @@ def scrape_nepse_data():
 
             print("Stock data saved successfully.")
             status = "Success"  # Update status to success
-
+            # break
         except Exception as e:
             print(f"Error with proxy {proxy}: {str(e)}. Trying next proxy...")
             status = f"Error: {str(e)}"  # Update status with the error message
 
         finally:
-            if driver:
-                driver.quit()
-                print(f"Driver quit for proxy {proxy}")  # Print confirmation
+           
+            # if driver:
+            #     driver.quit()
+            #     print(f"Driver quit for proxy {proxy}")  # Print confirmation
             # Log results regardless of success or failure
             timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             log_results_to_csv([timestamp, proxy, status])  # Log timestamp, proxy, and status
 # Run the scraper
-scrape_nepse_data()
+    driver.quit()
+# scrape_nepse_data()
