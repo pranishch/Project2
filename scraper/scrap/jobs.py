@@ -1,5 +1,5 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from .stock_scraper import scrape_nepse_data
+from .stock_scraper_TP import scrape_nepse_data
 import time
 
 def start_jobs():
