@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Transactions</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f4f7fc;
+            font-family: 'Arial', sans-serif;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        .table {
+            margin-top: 20px;
+        }
+
+        .table thead {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .table td, .table th {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        .text-center {
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Stock Transactions</h2>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Serial Number</th>
+                        <th>Contract Number</th>
+                        <th>Stock Symbol</th>
+                        <th>Buyer</th>
+                        <th>Seller</th>
+                        <th>Quantity</th>
+                        <th>Rate</th>
+                        <th>Amount</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in stock_transactions %}
+                    <tr>
+                        <td>{{ transaction.SN }}</td>
+                        <td>{{ transaction.contract_no }}</td>
+                        <td>{{ transaction.stock_symbol }}</td>
+                        <td>{{ transaction.buyer }}</td>
+                        <td>{{ transaction.seller }}</td>
+                        <td>{{ transaction.quantity }}</td>
+                        <td>{{ transaction.rate }}</td>
+                        <td>{{ transaction.amount }}</td>
+                        <td>{{ transaction.timestamp|date:"Y-m-d H:i:s" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if stock_transactions %}
+        <div class="text-center mt-4">
+            <p><strong>Total Transactions:</strong> {{ stock_transactions|length }}</p>
+        </div>
+        {% else %}
+        <div class="text-center mt-4">
+            <p>No stock transactions available.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

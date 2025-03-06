@@ -2,7 +2,6 @@ import os
 import django
 import time #as sleep_time
 import csv
-import subprocess
 from datetime import datetime #, time
 from seleniumwire import webdriver  # Importing Selenium Wire
 from selenium.webdriver.common.by import By
@@ -10,13 +9,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from pytz import timezone
 from .models import StockData  # Django model
-import webbrowser
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
 from scraper.proxies import PROXIES
+
 
 CHROMEDRIVER_PATH = r"c:\Users\Arjun\Desktop\project2\chromedriver.exe"  # Update this path
 
@@ -50,14 +46,13 @@ def log_results_to_csv(results, filename="proxy_results.csv"):
         writer.writerow([results[0].ljust(25), results[1].ljust(25), results[2].ljust(15)])  # Add padding
 
 
-
 def scrape_nepse_data():
     """Scrapes stock price data from NEPSE using rotating proxies within a time window."""
     
     while True:
         current_time = datetime.now().time()
         start_time = datetime.strptime("11:00:00", "%H:%M:%S").time()
-        end_time = datetime.strptime("17:00:00", "%H:%M:%S").time()
+        end_time = datetime.strptime("18:00:00", "%H:%M:%S").time()
 
         if start_time <= current_time <= end_time:
             print("Starting NEPSE scraping within the allowed time window...")
@@ -68,7 +63,7 @@ def scrape_nepse_data():
 def scrape_loop():
     """Runs the actual scraping function in a loop, stopping after given_time."""
     
-    end_time = datetime.strptime("17:00:00", "%H:%M:%S").time()
+    end_time = datetime.strptime("18:00:00", "%H:%M:%S").time()
 
     while True:
         current_time = datetime.now().time()
@@ -97,10 +92,10 @@ def scrape_loop():
 
                 # Extract last updated time
                 updated_time_element = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, "//div[contains(@class, 'table__asofdate')]/span"))
+                    EC.presence_of_element_located((By.CSS_SELECTOR, "div.table__asofdate span"))
                 )
-                last_updated_time = updated_time_element.text.strip().replace("As of ", "")
-                last_updated_datetime = datetime.strptime(last_updated_time, '%b %d, %Y, %I:%M:%S %p')
+                timestamp_str = updated_time_element.text.strip().replace("As of ", "")
+                last_updated_datetime = datetime.strptime(timestamp_str, "%b %d, %Y, %I:%M:%S %p")
 
                 # Select 500 rows
                 select_element = WebDriverWait(driver, 10).until(
@@ -186,3 +181,4 @@ def scrape_loop():
                 print("Time exceeded during sleep. Exiting...")
                 return  # Stop function immediately
             time.sleep(1)
+# scrape_nepse_data()
