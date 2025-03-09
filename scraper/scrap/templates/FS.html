@@ -58,7 +58,6 @@
                         <th>Quantity</th>
                         <th>Rate</th>
                         <th>Amount</th>
-                        <th>Timestamp</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -72,7 +71,6 @@
                         <td>{{ transaction.quantity }}</td>
                         <td>{{ transaction.rate }}</td>
                         <td>{{ transaction.amount }}</td>
-                        <td>{{ transaction.timestamp|date:"Y-m-d H:i:s" }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

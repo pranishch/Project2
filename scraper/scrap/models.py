@@ -30,16 +30,7 @@ class StockTransaction(models.Model):
     quantity = models.IntegerField()  # Adjust field type if necessary
     rate = models.DecimalField(max_digits=10, decimal_places=2)  # Adjust field type
     amount = models.DecimalField(max_digits=15, decimal_places=2)  # Adjust field type
-    timestamp = models.DateTimeField()  # Adjust field name
 
     def __str__(self):
         return f"Transaction {self.contract_no} - {self.stock_symbol}"
     
-class DaywiseLiveData(models.Model):
-    date= models.CharField(max_length=100,null=True,blank=True)
-    symbol = models.CharField(max_length=100,null=True,blank=True)
-    open = models.CharField(max_length=100,null=True,blank=True)
-    high = models.CharField(max_length=100,null=True,blank=True)
-    low = models.CharField(max_length=100,null=True,blank=True)
-    close = models.CharField(max_length=100,null=True,blank=True)
-    volume = models.CharField(max_length=100,null=True,blank=True)

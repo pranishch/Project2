@@ -4,3 +4,4 @@ db.sqlite3
 manage.py 
 __pycache__
 proxies.py
+proxy1_results.csv

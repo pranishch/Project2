@@ -11,4 +11,4 @@ def stock_list(request):
 def stock_FS(request):
     """Fetch all stock data of floor sheet from the database and render it in the template"""
     stock_transactions = StockTransaction.objects.all()
-    return render(request, 'FS.html',  {'stock_transactions': stock_transactions} )
+    # return render(request, 'FS.html',  {'stock_transactions': stock_transactions} )

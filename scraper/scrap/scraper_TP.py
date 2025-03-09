@@ -51,7 +51,7 @@ def scrape_nepse_data():
     
     while True:
         current_time = datetime.now().time()
-        start_time = datetime.strptime("11:00:00", "%H:%M:%S").time()
+        start_time = datetime.strptime("15:00:00", "%H:%M:%S").time()
         end_time = datetime.strptime("18:00:00", "%H:%M:%S").time()
 
         if start_time <= current_time <= end_time:
@@ -124,7 +124,6 @@ def scrape_loop():
                     EC.presence_of_element_located((By.TAG_NAME, "table"))
                 )
 
-
                 # Save data to the database
                 for tr in table.find_elements(By.TAG_NAME, "tbody")[0].find_elements(By.TAG_NAME, "tr"):
                     if datetime.now().time() > end_time:
@@ -181,4 +180,3 @@ def scrape_loop():
                 print("Time exceeded during sleep. Exiting...")
                 return  # Stop function immediately
             time.sleep(1)
-# scrape_nepse_data()
