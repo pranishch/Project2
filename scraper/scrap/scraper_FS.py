@@ -63,7 +63,7 @@ def scrape_nepse_FS():
     while True:
         current_time = datetime.now().time()
         start_time = datetime.strptime("10:00:00", "%H:%M:%S").time()
-        end_time = datetime.strptime("18:00:00", "%H:%M:%S").time()
+        end_time = datetime.strptime("22:00:00", "%H:%M:%S").time()
 
         if start_time <= current_time <= end_time:
             print("Starting NEPSE scraping within the allowed time window...")
@@ -74,9 +74,9 @@ def scrape_nepse_FS():
 def scrape_loop():
     """Runs the actual scraping function in a loop, stopping after given_time."""
     
-    end_time = datetime.strptime("18:00:00", "%H:%M:%S").time()
+    end_time = datetime.strptime("22:00:00", "%H:%M:%S").time()
     total_pages_saved = 0  # Counter to track the number of pages saved
-
+ 
     while True:
         current_time = datetime.now().time()
         if current_time > end_time:
@@ -108,7 +108,7 @@ def scrape_loop():
                 Select(select_element).select_by_value("500")
 
                 # Click the filter button
-                filter_button = WebDriverWait(driver, 10).until(
+                filter_button = WebDriverWait(driver, 20).until(
                     EC.element_to_be_clickable((By.CSS_SELECTOR, "button.box__filter--search"))
                 )
                 filter_button.click()
@@ -123,10 +123,10 @@ def scrape_loop():
                     time.sleep(1)
 
                 while True:  
-                    table = WebDriverWait(driver, 10).until(
+                    table = WebDriverWait(driver, 30).until(
                         EC.presence_of_element_located((By.CSS_SELECTOR, "table.table-striped tbody"))
                     )
-
+                    # time.sleep(5)     
                     for tr in table.find_elements(By.TAG_NAME, "tr"):
                         if datetime.now().time() > end_time:
                             print("Time exceeded during database save. Exiting...")
@@ -151,6 +151,7 @@ def scrape_loop():
 
                     total_pages_saved += 1  # Increment page count
                     print(f"Stock data saved successfully. Total pages saved: {total_pages_saved}")
+                    status = "Success✅"
 
                     # Click the "Next" button if available
                     try:
@@ -158,19 +159,18 @@ def scrape_loop():
                             EC.element_to_be_clickable((By.CSS_SELECTOR, "li.pagination-next a"))
                         )
                         driver.execute_script("arguments[0].click();", next_button)
-                        print("Moving to the next page...")
+                        # print("Moving to the next page...")
                         time.sleep(2)  
                     except:
                         print("No more pages to scrape. Exiting pagination loop.")
                         break  
 
-                status = "Success✅"
 
             except Exception as e:
-                print(f"Error with proxy {proxy}: {str(e)}. Trying next proxy...")
-                status = f"Error: Error❌"
+                # print(f"Error with proxy {proxy}: {str(e)}. Trying next proxy...")
+                # status = f"Error: Error❌"
 
-            finally:
+            # finally:
                 initialize_csv()
                 timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 log_results_to_csv([timestamp, proxy, status])
