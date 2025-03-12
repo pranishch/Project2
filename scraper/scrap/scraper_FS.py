@@ -62,8 +62,8 @@ def scrape_nepse_FS():
     
     while True:
         current_time = datetime.now().time()
-        start_time = datetime.strptime("10:00:00", "%H:%M:%S").time()
-        end_time = datetime.strptime("22:00:00", "%H:%M:%S").time()
+        start_time = datetime.strptime("15:00:00", "%H:%M:%S").time()
+        end_time = datetime.strptime("23:30:00", "%H:%M:%S").time()
 
         if start_time <= current_time <= end_time:
             print("Starting NEPSE scraping within the allowed time window...")
@@ -74,7 +74,7 @@ def scrape_nepse_FS():
 def scrape_loop():
     """Runs the actual scraping function in a loop, stopping after given_time."""
     
-    end_time = datetime.strptime("22:00:00", "%H:%M:%S").time()
+    end_time = datetime.strptime("23:30:00", "%H:%M:%S").time()
     total_pages_saved = 0  # Counter to track the number of pages saved
  
     while True:
@@ -159,7 +159,7 @@ def scrape_loop():
                             EC.element_to_be_clickable((By.CSS_SELECTOR, "li.pagination-next a"))
                         )
                         driver.execute_script("arguments[0].click();", next_button)
-                        # print("Moving to the next page...")
+                        print("Moving to the next page...")
                         time.sleep(2)  
                     except:
                         print("No more pages to scrape. Exiting pagination loop.")
@@ -167,10 +167,10 @@ def scrape_loop():
 
 
             except Exception as e:
-                # print(f"Error with proxy {proxy}: {str(e)}. Trying next proxy...")
-                # status = f"Error: Error❌"
+                print(f"Error with proxy {proxy}: {"error"}. Trying next proxy...")
+                status = f"Error: Error❌"
 
-            # finally:
+            finally:
                 initialize_csv()
                 timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 log_results_to_csv([timestamp, proxy, status])
