@@ -52,18 +52,29 @@ def safe_decimal(value):
         return decimal.Decimal(0)  # Return a default value (0) in case of error
 
 def scrape_nepse_FS():
-    """Scrapes stock price data from NEPSE using rotating proxies within a time window."""
+    """Dynamically starts scraping at the specified time without requiring manual restart."""
+    start_time = datetime.strptime("11:45:00", "%H:%M:%S").time()
+    end_time = datetime.strptime("23:58:00", "%H:%M:%S").time()
+
     while True:
         current_time = datetime.now().time()
-        start_time = datetime.strptime("05:00:00", "%H:%M:%S").time()
-        end_time = datetime.strptime("23:58:00", "%H:%M:%S").time()
 
         if start_time <= current_time <= end_time:
             print("Starting NEPSE scraping within the allowed time window...")
             scrape_loop()  # Calls the function that handles the proxy-based scraping
         else:
-            print("Outside scraping time. Waiting until 11 AM...")
-            time.sleep(1200)  # Check again in 20 minutes
+            # Calculate the time difference to dynamically wait
+            now = datetime.now()
+            next_start = datetime.combine(now.date(), start_time)
+            
+            if current_time > end_time:
+                # If current time is past end time, wait until the next day's start time
+                next_start = next_start.replace(day=now.day + 1)
+
+            wait_seconds = (next_start - now).total_seconds()
+            print(f"Outside scraping time. Waiting for {wait_seconds // 3600:.0f} hours and {wait_seconds % 3600 // 60:.0f} minutes until next start time...")
+            
+            time.sleep(wait_seconds)  # Dynamically wait until start time
 
 def scrape_loop():
     """Runs the actual scraping function in a loop, stopping after given_time or when all pages are scraped."""
