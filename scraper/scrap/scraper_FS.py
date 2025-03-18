@@ -1,6 +1,7 @@
 import decimal
 import os
 import time
+import re
 import csv
 from datetime import datetime
 from seleniumwire import webdriver
@@ -54,8 +55,8 @@ def scrape_nepse_FS():
     """Scrapes stock price data from NEPSE using rotating proxies within a time window."""
     while True:
         current_time = datetime.now().time()
-        start_time = datetime.strptime("11:00:00", "%H:%M:%S").time()
-        end_time = datetime.strptime("23:30:00", "%H:%M:%S").time()
+        start_time = datetime.strptime("05:00:00", "%H:%M:%S").time()
+        end_time = datetime.strptime("23:58:00", "%H:%M:%S").time()
 
         if start_time <= current_time <= end_time:
             print("Starting NEPSE scraping within the allowed time window...")
@@ -65,8 +66,8 @@ def scrape_nepse_FS():
             time.sleep(1200)  # Check again in 20 minutes
 
 def scrape_loop():
-    """Runs the actual scraping function in a loop, stopping after given_time."""
-    end_time = datetime.strptime("23:30:00", "%H:%M:%S").time()
+    """Runs the actual scraping function in a loop, stopping after given_time or when all pages are scraped."""
+    end_time = datetime.strptime("23:58:00", "%H:%M:%S").time()
     total_pages_saved = 0  # Counter to track the number of pages saved
 
     for proxy in PROXIES:
@@ -92,9 +93,25 @@ def scrape_loop():
             filter_button.click()
             time.sleep(5)  # Allow data to load
 
+            # Extract the total number of pages from the pagination
+            pagination = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "ul.ngx-pagination"))
+            )
+            pagination_items = pagination.find_elements(By.TAG_NAME, "li")
+            
+            # Clean the text to extract the numeric part
+            if len(pagination_items) >= 2:
+                raw_text = pagination_items[-2].text  # Get the raw text
+                cleaned_text = re.sub(r"[^0-9]", "", raw_text)  # Remove non-numeric characters
+                total_pages = int(cleaned_text)  # Convert to integer
+                print(f"Total pages to scrape: {total_pages}")
+            else:
+                print("Pagination structure is unexpected. Falling back to default total_pages = 1.")
+                total_pages = 1
+
             current_page = 1  # Start from the first page
 
-            while True:
+            while current_page <= total_pages:
                 current_time = datetime.now().time()
                 if current_time > end_time:
                     print(f"Stopping NEPSE scraping. Total pages saved: {total_pages_saved}. Exiting...")
@@ -108,30 +125,49 @@ def scrape_loop():
                             EC.presence_of_element_located((By.CSS_SELECTOR, "table.table-striped tbody"))
                         )
 
+                        # Counters for tracking scraped and saved rows
+                        total_rows_scraped = 0
+                        total_rows_saved = 0
+
+                        # List to hold all rows data for the current page
+                        rows_data = []
+
                         for tr in table.find_elements(By.TAG_NAME, "tr"):
                             columns = [td.text.strip() for td in tr.find_elements(By.TAG_NAME, "td")]
                             quantity = int(columns[5].replace(',', '').strip())
 
                             if len(columns) >= 8:
-                                entry = StockTransaction(
-                                    SN=columns[0],
-                                    contract_no=columns[1],
-                                    stock_symbol=columns[2],
-                                    buyer=columns[3],
-                                    seller=columns[4],
-                                    quantity=quantity,
-                                    rate=safe_decimal(columns[6]),
-                                    amount=safe_decimal(columns[7]),
-                                )
-                                entry.save()
+                                total_rows_scraped += 1  # Increment scraped rows counter
 
-                        total_pages_saved += 1  # Increment page count
-                        print(f"Stock data saved successfully. Total pages saved: {total_pages_saved}")
-                        status = "Success✅"
+                                # Check if the record already exists in the database
+                                if not StockTransaction.objects.filter(contract_no=columns[1]).exists():
+                                    entry = StockTransaction(
+                                        SN=columns[0],
+                                        contract_no=columns[1],
+                                        stock_symbol=columns[2],
+                                        buyer=columns[3],
+                                        seller=columns[4],
+                                        quantity=quantity,
+                                        rate=safe_decimal(columns[6]),
+                                        amount=safe_decimal(columns[7]),
+                                    )
+                                    rows_data.append(entry)
+                                    total_rows_saved += 1  # Increment saved rows counter
+                                else:
+                                    print(f"Duplicate record found with contract_no: {columns[1]}. Skipping...")
+
+                        # Save all rows data to the database at once
+                        if rows_data:
+                            StockTransaction.objects.bulk_create(rows_data)
+                            total_pages_saved += 1  # Increment page count
+                            print(f"Page {current_page}: Scraped {total_rows_scraped} rows, Saved {total_rows_saved} rows. Total pages saved: {total_pages_saved}")
+                            status = "Success✅"
+                        else:
+                            print(f"Page {current_page}: Scraped {total_rows_scraped} rows, No new rows to save.")
                         break  # Exit retry loop on success
                     
                     except Exception as e:
-                        print(f"Error scraping page {current_page}: {"error"}. Retrying ({retry_attempts-1} attempts left)...")
+                        print(f"Error scraping page {current_page}. Retrying ({retry_attempts-1} attempts left)...")
                         retry_attempts -= 1
                         time.sleep(3)
 
@@ -139,19 +175,26 @@ def scrape_loop():
                         print(f"Max retries reached for page {current_page}. Skipping...")
                         break
 
-                # Check if the "Next" button exists, otherwise stop scraping
-                try:
-                    next_button = WebDriverWait(driver, 5).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, "li.pagination-next a"))
-                    )
-                    if "disabled" in next_button.get_attribute("class"):
-                        print("Reached last page. Stopping scraping.")
+                # Move to the next page
+                if current_page < total_pages:
+                    try:
+                        # Locate the "Next" button
+                        next_button = WebDriverWait(driver, 10).until(
+                            EC.presence_of_element_located((By.CSS_SELECTOR, "li.pagination-next a"))
+                        )
+                        if "disabled" in next_button.get_attribute("class"):
+                            print("Reached last page. Stopping scraping.")
+                            break
+
+                        # Click the "Next" button
+                        driver.execute_script("arguments[0].click();", next_button)
+                        current_page += 1  # Update current page
+                        time.sleep(5)  # Give time for new data to load
+                    except Exception as e:
+                        print(f"Error navigating to the next page. Exiting pagination loop.")
                         break
-                    driver.execute_script("arguments[0].click();", next_button)
-                    current_page += 1  # Update current page
-                    time.sleep(3)  # Give time for new data to load
-                except Exception:
-                    print("No more pages to scrape. Exiting pagination loop.")
+                else:
+                    print("All pages scraped. Exiting...")
                     break
 
         finally:
@@ -160,6 +203,5 @@ def scrape_loop():
             log_results_to_csv([timestamp, proxy, status])
             print(f"Proxy {proxy} completed. Total pages saved: {total_pages_saved}. Moving to the next proxy...")
             driver.quit()
-
 
 scrape_nepse_FS()
