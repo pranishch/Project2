@@ -81,7 +81,7 @@ def scrape_loop():
             time.sleep(5)  # Allow the page to load
 
             # Select 500 rows only once
-            select_element = WebDriverWait(driver, 10).until(
+            select_element = WebDriverWait(driver, 20).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, "select.ng-pristine"))
             )
             Select(select_element).select_by_value("500")
@@ -202,6 +202,11 @@ def scrape_loop():
             timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             log_results_to_csv([timestamp, proxy, status])
             print(f"Proxy {proxy} completed. Total pages saved: {total_pages_saved}. Moving to the next proxy...")
+            
             driver.quit()
 
+            #Wait for 10 minutes before switching to the next proxy
+            print("Waiting for 10 minutes before switching to the next proxy...")
+            time.sleep(600) # 600 seconds = 10 minutes
+        
 scrape_nepse_FS()
