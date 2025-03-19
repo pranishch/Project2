@@ -74,7 +74,7 @@ def scrape_page(driver):
 def scrape_nepse_floor_sheet():
     """Main function to scrape the NEPSE floor sheet."""
     start_time = datetime.strptime("11:00:00", "%H:%M:%S").time()
-    end_time = datetime.strptime("22:00:00", "%H:%M:%S").time()
+    end_time = datetime.strptime("23:20:00", "%H:%M:%S").time()
 
     # Set to track unique rows based on multiple fields
     unique_rows = set()
@@ -110,6 +110,8 @@ def scrape_nepse_floor_sheet():
                 # Scrape Page 1
                 print("Scraping Page 1...")
                 page1_data = scrape_page(driver)
+                new_records_count = 0  # Counter for new records
+
                 for row in page1_data:
                     # Create a unique key for the row
                     row_key = tuple(row[1:])  # Exclude SN (first column) for uniqueness check
@@ -117,6 +119,12 @@ def scrape_nepse_floor_sheet():
                     if row_key not in unique_rows:  # Check for duplicates
                         log_results_to_csv(row)
                         unique_rows.add(row_key)  # Add to unique rows set
+                        new_records_count += 1  # Increment the counter
+
+                if new_records_count > 0:
+                    print(f"Saved {new_records_count} new records from Page 1.")
+                else:
+                    print("Scraping Page 1 but saving no new records.")
 
                 # Wait for 5 seconds before the next scrape
                 print("Waiting for 5 seconds before the next scrape...")
