@@ -164,8 +164,8 @@ def scrape_loop():
                                     )
                                     rows_data.append(entry)
                                     total_rows_saved += 1  # Increment saved rows counter
-                                else:
-                                    print(f"Duplicate record found with contract_no: {columns[1]}. Skipping...")
+                                # else:
+                                #     print(f"Duplicate record found with contract_no: {columns[1]}. Skipping...")
 
                         # Save all rows data to the database at once
                         if rows_data:

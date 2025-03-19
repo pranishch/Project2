@@ -5,3 +5,4 @@ manage.py
 __pycache__
 proxies.py
 proxy1_results.csv
+floor_sheet_data.csv
