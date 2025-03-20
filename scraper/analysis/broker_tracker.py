@@ -36,11 +36,11 @@ def process_data(df):
 
 # Main function
 def main():
-    csv_path = r"C:\Users\Arjun\Desktop\project2\scraper\scrap\floorsheet_floorsheetdata.csv"
+    csv_path = r"C:\Users\Arjun\Desktop\project2\scraper\analysis\floorsheet_floorsheetdata.csv"
     df = load_floorsheet_data(csv_path)
     broker_volume_df = process_data(df)
     
-    output_path = r"C:\Users\Arjun\Desktop\project2\scraper\scrap\broker_volume_data.csv"
+    output_path = r"C:\Users\Arjun\Desktop\project2\scraper\analysis\broker_volume_data.csv"
     broker_volume_df.to_csv(output_path, index=False)
     print(f"Broker Volume data saved to {output_path}")
 
