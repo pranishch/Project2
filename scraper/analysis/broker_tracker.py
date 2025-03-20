@@ -26,6 +26,30 @@ def process_data(df):
     
     return total_volume
 
+# Function to save DataFrame with consistent spacing
+def save_with_spacing(df, output_path, spacing=8):
+    # Determine the maximum width for each column
+    col_widths = [max(len(str(col)), df[col].astype(str).str.len().max()) for col in df.columns]
+    
+    # Create a format string for consistent spacing
+    format_str = ' '.join([f'{{:<{width + spacing}}}' for width in col_widths])
+    
+    # Write headers with consistent spacing
+    headers = format_str.format(*df.columns)
+    
+    # Write data rows with consistent spacing
+    data_rows = []
+    for _, row in df.iterrows():
+        data_row = format_str.format(*row)
+        data_rows.append(data_row)
+    
+    # Combine headers and data rows
+    content = headers + '\n' + '\n'.join(data_rows)
+    
+    # Write to file
+    with open(output_path, 'w') as f:
+        f.write(content)
+
 # Main function
 def main():
     csv_path = r"C:\Users\Arjun\Desktop\project2\scraper\analysis\floorsheet_floorsheetdata.csv"
@@ -33,7 +57,7 @@ def main():
     broker_volume_df = process_data(df)
     
     output_path = r"C:\Users\Arjun\Desktop\project2\scraper\analysis\broker_volume_data.csv"
-    broker_volume_df.to_csv(output_path, index=False)
+    save_with_spacing(broker_volume_df, output_path, spacing=8)  # Adjust spacing as needed
     print(f"Broker Volume data saved to {output_path}")
 
 # Run script
