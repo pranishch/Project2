@@ -74,7 +74,7 @@ def scrape_page(driver):
 def scrape_nepse_floor_sheet():
     """Main function to scrape the NEPSE floor sheet."""
     start_time = datetime.strptime("11:00:00", "%H:%M:%S").time()
-    end_time = datetime.strptime("23:20:00", "%H:%M:%S").time()
+    end_time = datetime.strptime("15:20:00", "%H:%M:%S").time()
 
     # Set to track unique rows based on multiple fields
     unique_rows = set()

@@ -6,3 +6,6 @@ __pycache__
 proxies.py
 proxy1_results.csv
 floor_sheet_data.csv
+broker_volume_data.csv
+enhanced_floorsheet_data.csv
+floorsheet_floorsheetdata.csv

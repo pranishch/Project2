@@ -53,8 +53,8 @@ def safe_decimal(value):
 
 def scrape_nepse_FS():
     """Dynamically starts scraping at the specified time without requiring manual restart."""
-    start_time = datetime.strptime("11:45:00", "%H:%M:%S").time()
-    end_time = datetime.strptime("23:58:00", "%H:%M:%S").time()
+    start_time = datetime.strptime("15:20:00", "%H:%M:%S").time()
+    end_time = datetime.strptime("18:02:00", "%H:%M:%S").time()
 
     while True:
         current_time = datetime.now().time()
@@ -78,7 +78,7 @@ def scrape_nepse_FS():
 
 def scrape_loop():
     """Runs the actual scraping function in a loop, stopping after given_time or when all pages are scraped."""
-    end_time = datetime.strptime("23:58:00", "%H:%M:%S").time()
+    end_time = datetime.strptime("18:02:00", "%H:%M:%S").time()
     total_pages_saved = 0  # Counter to track the number of pages saved
 
     for proxy in PROXIES:
