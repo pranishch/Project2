@@ -16,23 +16,15 @@ def process_data(df):
     df['buyer'] = df['buyer'].astype(str)
     df['seller'] = df['seller'].astype(str)
     
-    # Unique broker list and ID mapping
-    unique_brokers = sorted(set(df['buyer']).union(set(df['seller'])))
-    broker_id_map = {broker: idx + 1 for idx, broker in enumerate(unique_brokers)}
+    # Compute total volume per broker
+    buyer_volume = df.groupby('buyer')['quantity'].sum()
+    seller_volume = df.groupby('seller')['quantity'].sum()
     
-    df['Buyer Broker ID'] = df['buyer'].map(broker_id_map)
-    df['Seller Broker ID'] = df['seller'].map(broker_id_map)
+    # Combine buy and sell volumes into total volume
+    total_volume = buyer_volume.add(seller_volume, fill_value=0).reset_index()
+    total_volume.columns = ['Broker ID', 'Total Volume']
     
-    # Compute volume per broker
-    buyer_volume = df.groupby('Buyer Broker ID')['quantity'].sum().reset_index()
-    seller_volume = df.groupby('Seller Broker ID')['quantity'].sum().reset_index()
-    
-    # Merge buyer & seller volumes
-    broker_volume = pd.concat([buyer_volume, seller_volume])
-    broker_volume = broker_volume.groupby('Buyer Broker ID')['quantity'].sum().reset_index()
-    broker_volume.columns = ['Broker ID', 'Volume']
-    
-    return broker_volume
+    return total_volume
 
 # Main function
 def main():
