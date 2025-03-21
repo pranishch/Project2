@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Broker Volume Tracker</title>
+    <style>
+        /* Center the table */
+        .center-table {
+            margin-left: auto;
+            margin-right: auto;
+            width: 50%; /* Adjust the width as needed */
+            border-collapse: collapse; /* Optional: Makes the table borders look cleaner */
+        }
+
+        /* Optional: Add some padding and border to table cells */
+        .center-table th, .center-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        /* Optional: Add a background color to the table header */
+        .center-table th {
+            background-color: #f4f4f4;
+        }
+
+        /* Center the entire content */
+        .container {
+            text-align: center;
+        }
+
+        /* Style the time period list as a horizontal navigation bar */
+        .time-period-list {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px; /* Space between items */
+            margin: 20px 0;
+        }
+
+        .time-period-list li {
+            display: inline;
+        }
+
+        .time-period-list a {
+            text-decoration: none;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .time-period-list a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Broker Volume Tracker</h1>
+
+        <!-- Filter by Broker ID -->
+        <form method="get" action="">
+            <label for="broker_id">Broker ID:</label>
+            <input type="text" id="broker_id" name="broker_id" value="{{ broker_id }}">
+            <button type="submit">Filter</button>
+        </form>
+
+        <!-- Time Period Navigation -->
+        <h2>Select Time Period:</h2>
+        <ul class="time-period-list">
+            <li><a href="?period=latest_date&broker_id={{ broker_id }}">Latest Date</a></li>
+            <li><a href="?period=latest_week&broker_id={{ broker_id }}">Latest 5 Days</a></li>
+            <li><a href="?period=latest_month&broker_id={{ broker_id }}">Latest Month</a></li>
+            <li><a href="?period=latest_6_months&broker_id={{ broker_id }}">Latest 6 Months</a></li>
+        </ul>
+
+        <!-- Display Volumes -->
+        <h2>Volumes for {{ period }}</h2>
+        {% if volumes %}
+            <table class="center-table">
+                <thead>
+                    <tr>
+                        <th>Broker ID</th>
+                        <th>Total Volume</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for volume in volumes %}
+                    <tr>
+                        <td>{{ volume.broker_id }}</td>
+                        <td>{{ volume.total_volume }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No data available for the selected period.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
