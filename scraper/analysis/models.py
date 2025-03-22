@@ -8,9 +8,8 @@ class BrokerVolume(models.Model):
 
     def __str__(self):
         return f"{self.broker_id} - {self.date} - {self.time_period}"
-    
 class BrokerData(models.Model):
-    stock_name = models.CharField(max_length=10)  # Correct field name
+    stock_name = models.CharField(max_length=10)
     broker_id = models.CharField(max_length=50)
     volume = models.IntegerField()
     percent_volume = models.FloatField()
