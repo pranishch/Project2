@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Broker Data</title>
+</head>
+<body>
+    <h1>Broker Data for {{ stock_name }} ({{ time_frame }})</h1>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% else %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Broker ID</th>
+                    <th>Total Volume</th>
+                    <th>Percent Volume</th>
+                    <th>Date Range</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for broker in broker_data %}
+                    <tr>
+                        <td>{{ broker.broker_id }}</td>
+                        <td>{{ broker.volume }}</td>
+                        <td>{{ broker.percent_volume }}%</td>
+                        <td>{{ broker.date_range }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p><strong>Grand Total Volume:</strong> {{ grand_total_volume }}</p>
+    {% endif %}
+    <br>
+    <a href="{% url 'index' %}">Back to Home</a>
+</body>
+</html>

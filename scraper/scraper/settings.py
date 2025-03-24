@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_apscheduler',
     'scrap',
-    'analysis',
+    'data_analysis',
 ]
 
 MIDDLEWARE = [

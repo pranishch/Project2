@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stockwise Broker</title>
+</head>
+<body>
+    <h1>Select Stock and Time Frame</h1>
+    <form method="GET" action="{% url 'get_broker_data' %}">
+        <label for="stock_name">Stock Name:</label>
+        <select name="stock_name" id="stock_name">
+            {% for stock in stock_names %}
+                <option value="{{ stock }}">{{ stock }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+        <label for="time_frame">Time Frame:</label>
+        <select name="time_frame" id="time_frame">
+            <option value="daily">Daily</option>
+            <option value="latest_week">Latest Week</option>
+            <option value="latest_month">Latest Month</option>
+            <option value="latest_3_months">Latest 3 Months</option>
+            <option value="latest_6_months">Latest 6 Months</option>
+        </select>
+        <br><br>
+        <button type="submit">Get Broker Data</button>
+    </form>
+</body>
+</html>
