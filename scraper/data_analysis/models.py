@@ -22,3 +22,29 @@ class StockwiseBroker(models.Model):
     percent_volume = models.FloatField()
     date_range = models.CharField(max_length=50)  # Add a default value
     time_frame = models.CharField(max_length=20)  
+
+class BulkVolumeTrade(models.Model):
+    script = models.CharField(max_length=255)  # Stock symbol
+    buy_broker = models.CharField(max_length=255)  # Buyer broker
+    quantity = models.FloatField()  # Total quantity
+    time_frame = models.CharField(max_length=20)
+    date_range = models.CharField(max_length=50)  # Add a default value
+
+class WashTrade(models.Model):
+    script = models.CharField(max_length=255)
+    quantity = models.FloatField()
+    date_range = models.CharField(max_length=50)  # Stores the time range string
+    time_frame = models.CharField(max_length=20)
+    buyer_seller = models.CharField(max_length=255)  # Broker who is both buyer and seller
+        
+class BigPlayerAccumulation(models.Model):
+    script = models.CharField(max_length=255)
+    quantity = models.FloatField()
+    buying_broker = models.CharField(max_length=255)
+    selling_brokers = models.TextField()  # Stores multiple sellers as JSON
+    time_frame = models.CharField(max_length=20)
+    date_range = models.CharField(max_length=50)
+            
+ 
+        
+   

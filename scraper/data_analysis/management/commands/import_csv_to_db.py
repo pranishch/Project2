@@ -1,7 +1,7 @@
 import pandas as pd
 from datetime import datetime
 from django.core.management.base import BaseCommand
-from analysis.models import FloorsheetData  # Replace 'analysis' with your app name
+from data_analysis.models import FloorsheetData  # Replace 'analysis' with your app name
 
 class Command(BaseCommand):
     help = 'Import data from a CSV file into the database'

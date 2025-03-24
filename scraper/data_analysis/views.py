@@ -41,7 +41,7 @@ def get_broker_data(request):
 
     if stock_name:
         # Process and save data for the selected stock and time frame
-        from ..data_analysis.stockwise_broker import save_broker_data
+        from data_analysis.stockwise_broker import save_broker_data
         save_broker_data(stock_name, time_frame)
 
         # Fetch the saved data from the database
