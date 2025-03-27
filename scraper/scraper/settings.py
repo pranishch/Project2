@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'django_apscheduler',
     'scrap',
     'data_analysis',
+    'rest_framework',
+    'api',
 ]
 
 MIDDLEWARE = [

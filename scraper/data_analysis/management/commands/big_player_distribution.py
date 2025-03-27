@@ -1,19 +1,18 @@
 import django
-django.setup()
-
+import json
 from django.core.management.base import BaseCommand
 from django.db import models
-from data_analysis.models import FloorsheetData, WashTrade
+from data_analysis.models import FloorsheetData, BigPlayerDistribution
 from datetime import datetime, timedelta
 import dask.dataframe as dd
 from dask.distributed import Client
 import pandas as pd
 
 class Command(BaseCommand):
-    help = 'Detects and saves wash trades by time frame with proper date ranges'
+    help = 'Detects big player distribution patterns (one seller, multiple buyers)'
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.SUCCESS('Starting wash trade detection...'))
+        self.stdout.write(self.style.SUCCESS('Starting big player distribution detection...'))
         
         client = Client()
         try:
@@ -22,7 +21,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.WARNING('No data available'))
                 return
 
-            # Define all time frames with their parameters
+            # Process all time frames
             time_frames = [
                 {'name': 'Daily', 'days': 1, 'label': 'Latest Day'},
                 {'name': 'Weekly', 'days': 4, 'label': 'Latest 5 Days'},
@@ -39,14 +38,14 @@ class Command(BaseCommand):
                     days=tf['days']
                 )
             
-            self.stdout.write(self.style.SUCCESS('\nAll time frames processed successfully'))
+            self.stdout.write(self.style.SUCCESS('\nProcessing completed'))
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error: {str(e)}'))
         finally:
             client.close()
 
     def process_time_frame(self, name, label, latest_date, days):
-        """Process and save wash trades for a specific time frame"""
+        """Process distribution patterns for a specific time frame"""
         start_date = latest_date - timedelta(days=days)
         
         # Format the date range display
@@ -57,50 +56,59 @@ class Command(BaseCommand):
 
         self.stdout.write(f"\nProcessing {label} ({date_range})...")
 
-        # Get data using Dask for efficient processing
+        # Get data using Dask
         queryset = FloorsheetData.objects.filter(
             date__gte=start_date,
             date__lte=latest_date
-        ).values('symbol', 'buyer', 'seller', 'quantity')
+        ).values('symbol', 'buyer', 'seller', 'quantity', 'date')
 
+        # Convert to DataFrame
         df = dd.from_pandas(pd.DataFrame(list(queryset)), npartitions=10)
         
-        # Filter wash trades (same buyer/seller with quantity > 1000)
-        wash_trades = df[
-            (df['buyer'] == df['seller']) & 
-            (df['quantity'] > 1000)
-        ]
-
-        if len(wash_trades.index) == 0:
-            self.stdout.write(self.style.WARNING('No wash trades found'))
-            WashTrade.objects.filter(time_frame=name).delete()
+        # Step 1: Calculate the sum of quantity for each symbol-seller pair
+        quantity_sum = df.groupby(['symbol', 'seller']).quantity.sum().reset_index()
+        
+        # Step 2: Bring everything to Pandas for more complex operations
+        pandas_df = df.compute()
+        
+        # Group by symbol and seller to get all unique buyers
+        buyers_groups = pandas_df.groupby(['symbol', 'seller'])['buyer'].apply(lambda x: list(x.unique()))
+        buyers_df = buyers_groups.reset_index()
+        
+        # Get the latest date for each symbol-seller pair
+        latest_dates = pandas_df.groupby(['symbol', 'seller'])['date'].max().reset_index()
+        
+        # Merge all the information together
+        merged_df = pd.merge(quantity_sum.compute(), buyers_df, on=['symbol', 'seller'])
+        merged_df = pd.merge(merged_df, latest_dates, on=['symbol', 'seller'])
+        
+        # Filter for cases with multiple buyers
+        result = merged_df[merged_df['buyer'].apply(len) > 1]
+        
+        # Sort by quantity
+        result = result.sort_values('quantity', ascending=False)
+        
+        if len(result) == 0:
+            self.stdout.write(self.style.WARNING('No distribution patterns found'))
+            BigPlayerDistribution.objects.filter(time_frame=name).delete()
             return
 
-        # Process results
-        result = (
-            wash_trades.groupby(['symbol', 'buyer'])
-            .agg({'quantity': 'sum'})
-            .reset_index()
-            .sort_values('quantity', ascending=False)
-            .compute()
-        )
-
-        # Clear existing records for this time frame
-        WashTrade.objects.filter(time_frame=name).delete()
+        # Update database
+        BigPlayerDistribution.objects.filter(time_frame=name).delete()
         
-        # Save new records
         records_created = 0
         for _, row in result.iterrows():
-            WashTrade.objects.create(
+            BigPlayerDistribution.objects.create(
                 script=row['symbol'],
                 quantity=row['quantity'],
+                buying_brokers=json.dumps(row['buyer']),  # Correct field name
+                selling_broker=row['seller'],  # Correct field name
                 time_frame=name,
-                date_range=date_range,
-                buyer_seller=row['buyer']
+                date_range=date_range
             )
             records_created += 1
 
         total_volume = result['quantity'].sum()
         self.stdout.write(self.style.SUCCESS(
-            f"Saved {records_created} wash trades (Total volume: {total_volume:,} shares)"
+            f"Found {records_created} distribution patterns (Total volume: {total_volume:,} shares)"
         ))

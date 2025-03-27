@@ -1,5 +1,5 @@
 import django
-django.setup()
+# django.setup()  # Remove this line as it causes issues (as discussed in previous fix)
 import json
 from django.core.management.base import BaseCommand
 from django.db import models
@@ -25,10 +25,10 @@ class Command(BaseCommand):
             # Process all time frames
             time_frames = [
                 {'name': 'Daily', 'days': 1, 'label': 'Latest Day'},
-                {'name': 'Weekly', 'days': 5, 'label': 'Latest 5 Days'},
-                {'name': 'Monthly', 'days': 30, 'label': 'Latest 30 Days'},
-                {'name': '3 Month', 'days': 90, 'label': 'Latest 90 Days'},
-                {'name': '6 Month', 'days': 180, 'label': 'Latest 180 Days'}
+                {'name': 'Weekly', 'days': 4, 'label': 'Latest 5 Days'},
+                {'name': 'Monthly', 'days': 29, 'label': 'Latest 30 Days'},
+                {'name': '3 Month', 'days': 89, 'label': 'Latest 90 Days'},
+                {'name': '6 Month', 'days': 179, 'label': 'Latest 180 Days'}
             ]
 
             for tf in time_frames:
@@ -49,47 +49,53 @@ class Command(BaseCommand):
         """Process accumulation patterns for a specific time frame"""
         start_date = latest_date - timedelta(days=days)
         
-        # Create descriptive date range
-        if name == 'Daily':
-            date_range = f"As of {latest_date.strftime('%Y-%m-%d')}"
-        else:
-            date_range = f"{days} days up to {latest_date.strftime('%Y-%m-%d')}"
+         # Format the date range display
+        date_range = (
+            latest_date.strftime('%Y-%m-%d') if name == 'Daily'
+            else f"{start_date.strftime('%Y-%m-%d')} to {latest_date.strftime('%Y-%m-%d')}"
+        )
 
-        self.stdout.write(f"\nProcessing {label} ({date_range})")
+        self.stdout.write(f"\nProcessing {label} ({date_range})...")
 
         # Get data using Dask
         queryset = FloorsheetData.objects.filter(
             date__gte=start_date,
             date__lte=latest_date
-        ).values('symbol', 'buyer', 'seller', 'quantity')
+        ).values('symbol', 'buyer', 'seller', 'quantity', 'date')
 
+        # Convert to DataFrame
         df = dd.from_pandas(pd.DataFrame(list(queryset)), npartitions=10)
         
-        # Find accumulation patterns (one buyer, multiple sellers)
-        result = (
-            df.groupby(['symbol', 'buyer'])
-            .agg({
-                'quantity': 'sum',
-                'seller': lambda x: list(x.unique()),
-                'date': 'max'
-            })
-            .reset_index()
-            .rename(columns={'seller': 'sellers'})
-        )
-
-        # Filter for cases with multiple sellers
-        result = result[result['sellers'].map(len) > 1]
+        # FIXED APPROACH: Two-step process to avoid using lambda with Dask
         
-        if len(result.index) == 0:
+        # Step 1: Calculate the sum of quantity for each symbol-buyer pair
+        quantity_sum = df.groupby(['symbol', 'buyer']).quantity.sum().reset_index()
+        
+        # Step 2: Bring everything to Pandas for more complex operations
+        # This is more memory-intensive but handles the seller aggregation correctly
+        pandas_df = df.compute()
+        
+        # Group by symbol and buyer to get all unique sellers
+        sellers_groups = pandas_df.groupby(['symbol', 'buyer'])['seller'].apply(lambda x: list(x.unique()))
+        sellers_df = sellers_groups.reset_index()
+        
+        # Get the latest date for each symbol-buyer pair
+        latest_dates = pandas_df.groupby(['symbol', 'buyer'])['date'].max().reset_index()
+        
+        # Merge all the information together
+        merged_df = pd.merge(quantity_sum.compute(), sellers_df, on=['symbol', 'buyer'])
+        merged_df = pd.merge(merged_df, latest_dates, on=['symbol', 'buyer'])
+        
+        # Filter for cases with multiple sellers
+        result = merged_df[merged_df['seller'].apply(len) > 1]
+        
+        # Sort by quantity
+        result = result.sort_values('quantity', ascending=False)
+        
+        if len(result) == 0:
             self.stdout.write(self.style.WARNING('No accumulation patterns found'))
             BigPlayerAccumulation.objects.filter(time_frame=name).delete()
             return
-
-        # Compute and sort results
-        result = (
-            result.sort_values('quantity', ascending=False)
-            .compute()
-        )
 
         # Update database
         BigPlayerAccumulation.objects.filter(time_frame=name).delete()
@@ -100,7 +106,7 @@ class Command(BaseCommand):
                 script=row['symbol'],
                 quantity=row['quantity'],
                 buying_broker=row['buyer'],
-                selling_brokers=json.dumps(row['sellers']),
+                selling_brokers=json.dumps(row['seller']),
                 time_frame=name,
                 date_range=date_range
             )

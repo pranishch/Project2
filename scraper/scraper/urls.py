@@ -21,4 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('scrap.urls')),
     path('',include('data_analysis.urls')),
+    path('',include('api.urls')),
+
+
 ]

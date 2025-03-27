@@ -1,61 +1,68 @@
-import pandas as pd
-from datetime import datetime
 from django.core.management.base import BaseCommand
-from data_analysis.models import FloorsheetData  # Replace 'analysis' with your app name
+import csv
+from datetime import datetime
+from data_analysis.models import FloorsheetData
 
 class Command(BaseCommand):
-    help = 'Import data from a CSV file into the database'
+    help = 'Import floorsheet data from CSV file'
 
-    def add_arguments(self, parser):
-        parser.add_argument('csv_path', type=str, help='The path to the CSV file')
-
-    def handle(self, *args, **kwargs):
-        csv_path = kwargs['csv_path']
-
-        # Read the CSV file
-        df = pd.read_csv(csv_path)
-
-        # Print the first few rows for debugging
-        self.stdout.write("Columns in the CSV file: " + str(df.columns.tolist()))
-        self.stdout.write("First few rows of the CSV file:")
-        self.stdout.write(str(df.head()))
-
-        # Strip leading/trailing spaces from column names
-        df.columns = df.columns.str.strip()
-
-        # Check if required columns exist
-        required_columns = ['symbol', 'buyer', 'seller', 'quantity', 'rate', 'amount', 'date']
-        for column in required_columns:
-            if column not in df.columns:
-                raise ValueError(f"Column '{column}' not found in CSV file. Available columns: {df.columns.tolist()}")
-
-        # Drop the 'transaction_no' column
-        if 'transaction_no' in df.columns:
-            df = df.drop(columns=['transaction_no'])
-            self.stdout.write("Dropped 'transaction_no' column.")
-        else:
-            self.stdout.write("Column 'transaction_no' not found in the CSV file.")
-
-        # Convert the date column to datetime
-        df['date'] = pd.to_datetime(df['date'], errors='coerce')
-
-        # Clean numeric columns (remove commas and convert to float)
-        numeric_columns = ['quantity', 'rate', 'amount']
-        for column in numeric_columns:
-            df[column] = df[column].str.replace(',', '').astype(float)
-
-        # Save data to the database
-        for _, row in df.iterrows():
-            # Create a new record
-            FloorsheetData.objects.create(
-                symbol=row['symbol'],
-                buyer=row['buyer'],
-                seller=row['seller'],
-                quantity=row['quantity'],
-                rate=row['rate'],
-                amount=row['amount'],
-                date=row['date'],
-            )
-            self.stdout.write(f"Saved record: {row['symbol']}, {row['buyer']}, {row['seller']}, {row['quantity']}, {row['rate']}, {row['amount']}, {row['date']}")
-
-        self.stdout.write(self.style.SUCCESS('CSV data imported to the database successfully!'))
+    def handle(self, *args, **options):
+        FloorsheetData.objects.all().delete()
+        # Define the CSV file path directly in the program
+        csv_file_path = r'C:\Users\Arjun\Desktop\project2\scraper\data_analysis\floorsheet_floorsheetdata.csv'
+        
+        self.stdout.write(self.style.SUCCESS(f'Starting import from {csv_file_path}'))
+        
+        rows_imported = 0
+        rows_failed = 0
+        
+        try:
+            with open(csv_file_path, 'r') as file:
+                # Use csv.reader with comma delimiter and skip header
+                reader = csv.reader(file, delimiter=',')
+                next(reader)  # Skip header row
+                
+                for row in reader:
+                    try:
+                        if len(row) < 9:
+                            self.stdout.write(self.style.WARNING(f'Skipping row with insufficient data: {row}'))
+                            rows_failed += 1
+                            continue
+                        
+                        # Parse date from DD/MM/YYYY to YYYY-MM-DD
+                        date_str = row[8]
+                        
+                        
+                        # Handle scientific notation and remove commas for numeric fields
+                        transaction_no = "{:.0f}".format(float(row[1]))  # Convert scientific notation to integer
+                        quantity = float(row[5].replace(',', ''))
+                        # Remove commas from rate and amount before converting to float
+                        rate = float(row[6].replace(',', ''))
+                        amount = float(row[7].replace(',', ''))
+                        
+                        # Create model instance
+                        FloorsheetData.objects.create(
+                            transaction_no=transaction_no,
+                            symbol=row[2],
+                            buyer=row[3],
+                            seller=row[4],
+                            quantity=quantity,
+                            rate=rate,
+                            amount=amount,
+                            date=date_str
+                        )
+                        
+                        rows_imported += 1
+                        
+                    except Exception as e:
+                        self.stdout.write(self.style.ERROR(f'Error importing row: {row}'))
+                        self.stdout.write(self.style.ERROR(f'Exception: {e}'))
+                        rows_failed += 1
+                        
+            self.stdout.write(self.style.SUCCESS(f'Import completed. {rows_imported} rows imported successfully.'))
+            
+            if rows_failed > 0:
+                self.stdout.write(self.style.WARNING(f'{rows_failed} rows failed to import.'))
+                
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f'Failed to import data: {e}'))

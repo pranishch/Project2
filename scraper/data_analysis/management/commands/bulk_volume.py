@@ -9,7 +9,7 @@ from dask.distributed import Client
 import pandas as pd
 
 class Command(BaseCommand):
-    help = 'Process bulk volume trades to find highest quantity per broker with their top script'
+    help = 'Process bulk volume trades to find all scripts traded by each broker'
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS('Starting bulk volume trade processing...'))
@@ -19,10 +19,10 @@ class Command(BaseCommand):
             # Process data for different time frames
             time_frames = [
                 ('Daily', timedelta(days=1)),
-                ('Weekly', timedelta(days=5)),
-                ('Monthly', timedelta(days=30)),
-                ('3 Month', timedelta(days=90)),
-                ('6 Month', timedelta(days=180))
+                ('Weekly', timedelta(days=4)),
+                ('Monthly', timedelta(days=29)),
+                ('3 Month', timedelta(days=89)),
+                ('6 Month', timedelta(days=179))
             ]
             
             for time_frame, delta in time_frames:
@@ -60,47 +60,26 @@ class Command(BaseCommand):
         # Convert to DataFrame
         df = dd.from_pandas(pd.DataFrame(list(queryset)), npartitions=10)
         
-        # IMPROVED APPROACH:
+        # Step 1: Aggregate quantities for each buyer-symbol combination
+        broker_script_volume = (
+            df.groupby(['buyer', 'symbol'])
+            .agg({'quantity': 'sum'})
+            .reset_index()
+            .compute()
+        )
         
-        # Step 1: For each broker, find their top script by total trading volume
-        # Group by buyer and symbol to get total quantity traded for each pair
-        broker_script_volume = df.groupby(['buyer', 'symbol']).agg({'quantity': 'sum'}).reset_index().compute()
-        
-        # Step 2: Get all unique buyers
-        all_buyers = broker_script_volume['buyer'].unique()
-        
-        # Step 3: For each buyer, find their top script (with highest total quantity)
-        final_results = []
-        
-        for buyer in all_buyers:
-            buyer_data = broker_script_volume[broker_script_volume['buyer'] == buyer]
-            # Find the script with maximum total quantity for this buyer
-            top_script_row = buyer_data.loc[buyer_data['quantity'].idxmax()]
-            
-            # Once we know the buyer's top script, find the largest single trade for this broker-script pair
-            max_single_trade = (
-                df[(df['buyer'] == buyer) & (df['symbol'] == top_script_row['symbol'])]
-                .compute()['quantity'].max()
-            )
-            
-            final_results.append({
-                'buyer': buyer,
-                'symbol': top_script_row['symbol'],
-                'quantity': max_single_trade
-            })
-        
-        # Convert to DataFrame and sort by quantity
-        final_df = pd.DataFrame(final_results).sort_values('quantity', ascending=False)
+        # Sort by quantity in descending order
+        broker_script_volume = broker_script_volume.sort_values('quantity', ascending=False)
         
         # Debug output
-        self.stdout.write(f"Found {len(final_df)} unique brokers in {time_frame} period")
+        self.stdout.write(f"Total broker-script combinations: {len(broker_script_volume)}")
         
         # Delete existing records for this time frame
         BulkVolumeTrade.objects.filter(time_frame=time_frame).delete()
         
         # Save all records
         records_created = 0
-        for _, row in final_df.iterrows():
+        for _, row in broker_script_volume.iterrows():
             BulkVolumeTrade.objects.create(
                 script=row['symbol'],
                 buy_broker=row['buyer'],
@@ -111,5 +90,5 @@ class Command(BaseCommand):
             records_created += 1
 
         self.stdout.write(self.style.SUCCESS(
-            f"Saved {records_created} broker records for {time_frame} ({date_range})"
+            f"Saved {records_created} broker-script records for {time_frame} ({date_range})"
         ))
