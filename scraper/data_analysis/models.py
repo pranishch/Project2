@@ -301,3 +301,60 @@ class BrokerTransfer(models.Model):
     transaction_count = models.IntegerField(null=True, blank=True)
     days_active = models.IntegerField(null=True, blank=True)
     
+class ConsecutiveNoTrade(models.Model):
+    symbol = models.CharField(max_length=255, null=True, blank=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    days_count = models.PositiveIntegerField(null=True, blank=True)
+    calculated_date = models.DateField(null=True, blank=True)    
+
+class VolumeDriedUp(models.Model):
+    symbol = models.CharField(max_length=20, null=True, blank=True)
+    date = models.DateField(null=True, blank=True)
+    quantity = models.BigIntegerField(null=True, blank=True)
+    avg_volume_past_week = models.FloatField(null=True, blank=True)
+    
+    class Meta:
+        unique_together = ('symbol', 'date')
+
+    def __str__(self):
+        return f"{self.symbol} - {self.date}"    
+
+class IntradayBigTrade(models.Model):
+    symbol = models.CharField(max_length=20, null=True, blank=True)
+    date = models.DateField(null=True, blank=True)
+    buyer = models.CharField(max_length=100, null=True, blank=True)
+    seller = models.CharField(max_length=100, null=True, blank=True)
+    quantity = models.IntegerField(null=True, blank=True)
+    rate = models.FloatField(null=True, blank=True)
+    total_volume_daily = models.IntegerField(null=True, blank=True)
+
+class TradingHalt(models.Model):
+    symbol = models.CharField(max_length=20, null=True, blank=True)
+    date = models.DateField(null=True, blank=True)
+    rate = models.FloatField(null=True, blank=True)
+    open_price = models.FloatField(null=True, blank=True)
+    price_change_pct = models.FloatField(null=True, blank=True)
+
+
+    def __str__(self):
+        return f"{self.symbol} on {self.date} - {self.price_change_pct:.2f}%"
+    
+class ContinuousVolumeIncrease(models.Model):
+    symbol = models.CharField(max_length=255, null=True, blank=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    consecutive_days = models.PositiveIntegerField(null=True, blank=True)
+    current_volume = models.FloatField(null=True, blank=True)
+    percentage_change = models.FloatField(null=True, blank=True)
+   
+class BiggestInfluencedStock(models.Model):
+    rank = models.IntegerField(null=True, blank=True)
+    symbol = models.CharField(max_length=255, null=True, blank=True)
+    turnover = models.FloatField(null=True, blank=True)  # Total turnover for the stock
+    calculation_date = models.DateField(null=True, blank=True)
+    
+    class Meta:
+        unique_together = ('symbol', 'calculation_date')
+        ordering = ['calculation_date', 'rank']
+  
