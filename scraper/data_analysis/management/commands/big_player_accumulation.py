@@ -1,5 +1,4 @@
 import django
-# django.setup()  # Remove this line as it causes issues (as discussed in previous fix)
 import json
 from django.core.management.base import BaseCommand
 from django.db import models

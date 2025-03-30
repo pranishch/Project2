@@ -1,4 +1,3 @@
-# management/commands/distribution.py
 from django.core.management.base import BaseCommand
 from django.db import transaction
 import dask.dataframe as dd

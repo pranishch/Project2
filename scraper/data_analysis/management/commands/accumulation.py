@@ -2,7 +2,7 @@ import dask.dataframe as dd
 import pandas as pd
 from django.core.management.base import BaseCommand
 from django.db.models import Max, Q
-from ...models import FloorsheetData, AccumulationData
+from ...models import FloorsheetData, Accumulation
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 
@@ -58,7 +58,7 @@ class Command(BaseCommand):
                 date_range = f"Last {days_back} days ({start_date} to {latest_date})"
                 
                 # Delete existing data for this time frame and date range
-                deleted_count, _ = AccumulationData.objects.filter(
+                deleted_count, _ = Accumulation.objects.filter(
                     time_frame=tf_config['label'],
                     date=latest_date
                 ).delete()
@@ -137,7 +137,7 @@ class Command(BaseCommand):
                     remark = " | ".join(remarks) if remarks else "No accumulation detected"
                     
                     # Prepare record for batch create
-                    accumulation_data.append(AccumulationData(
+                    accumulation_data.append(Accumulation(
                         symbol=symbol,
                         date=latest_date,
                         time_frame=tf_config['label'],
@@ -149,7 +149,7 @@ class Command(BaseCommand):
                 
                 # Bulk create all records for this time frame
                 if accumulation_data:
-                    AccumulationData.objects.bulk_create(accumulation_data)
+                    Accumulation.objects.bulk_create(accumulation_data)
                     self.stdout.write(f"  Saved {len(accumulation_data)} records for {tf_config['label']} time frame")
             
             self.stdout.write(self.style.SUCCESS("Accumulation detection completed successfully"))

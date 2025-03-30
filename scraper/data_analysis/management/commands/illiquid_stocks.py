@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.db.models import Sum, Count
-from data_analysis.models import FloorsheetData, IlliquidStockReport
+from data_analysis.models import FloorsheetData, IlliquidStock
 import pandas as pd
 from datetime import datetime, timedelta
 import logging
@@ -133,7 +133,7 @@ class Command(BaseCommand):
             if unusual_activities:
                 logger.info(f"Saving {len(unusual_activities)} unusual activities...")
                 for activity in unusual_activities:
-                    IlliquidStockReport.objects.update_or_create(
+                    IlliquidStock.objects.update_or_create(
                         script=activity['symbol'],
                         analysis_date=activity['date'],
                         defaults={

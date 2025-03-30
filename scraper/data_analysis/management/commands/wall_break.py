@@ -2,7 +2,7 @@ import dask.dataframe as dd
 from django.core.management.base import BaseCommand
 from django.db.models import Max
 import pandas as pd
-from data_analysis.models import FloorsheetData, WallBreakTracking
+from data_analysis.models import FloorsheetData, WallBreak
 from datetime import datetime
 
 class Command(BaseCommand):
@@ -69,8 +69,8 @@ class Command(BaseCommand):
             records = merged_df.to_dict('records')
             
             # Bulk create records
-            WallBreakTracking.objects.bulk_create([
-                WallBreakTracking(**record) for record in records
+            WallBreak.objects.bulk_create([
+                WallBreak(**record) for record in records
             ])
             
             self.stdout.write(self.style.SUCCESS(

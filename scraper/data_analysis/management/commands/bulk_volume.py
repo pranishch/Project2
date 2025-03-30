@@ -2,7 +2,7 @@ import django
 django.setup()
 from django.core.management.base import BaseCommand
 from django.db import models
-from data_analysis.models import FloorsheetData, BulkVolumeTrade
+from data_analysis.models import FloorsheetData, BulkVolume
 from datetime import datetime, timedelta
 import dask.dataframe as dd
 from dask.distributed import Client
@@ -75,12 +75,12 @@ class Command(BaseCommand):
         self.stdout.write(f"Total broker-script combinations: {len(broker_script_volume)}")
         
         # Delete existing records for this time frame
-        BulkVolumeTrade.objects.filter(time_frame=time_frame).delete()
+        BulkVolume.objects.filter(time_frame=time_frame).delete()
         
         # Save all records
         records_created = 0
         for _, row in broker_script_volume.iterrows():
-            BulkVolumeTrade.objects.create(
+            BulkVolume.objects.create(
                 script=row['symbol'],
                 buy_broker=row['buyer'],
                 quantity=row['quantity'],

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from data_analysis.models import BrokerTracker, FloorsheetData
+from data_analysis.models import BrokerTracker, FloorsheetData, StockwiseBroker
 
 class FloorsheetDataSerializeer(serializers.ModelSerializer):
     class Meta:
@@ -12,3 +12,8 @@ class BrokerTrackerSerializer(serializers.ModelSerializer):
         model = BrokerTracker
         fields = '__all__'
 
+
+class StockwiseBrokerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StockwiseBroker
+        fields = '__all__'
