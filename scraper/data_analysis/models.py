@@ -329,17 +329,6 @@ class IntradayBigTrade(models.Model):
     rate = models.FloatField(null=True, blank=True)
     total_volume_daily = models.IntegerField(null=True, blank=True)
 
-class TradingHalt(models.Model):
-    symbol = models.CharField(max_length=20, null=True, blank=True)
-    date = models.DateField(null=True, blank=True)
-    rate = models.FloatField(null=True, blank=True)
-    open_price = models.FloatField(null=True, blank=True)
-    price_change_pct = models.FloatField(null=True, blank=True)
-
-
-    def __str__(self):
-        return f"{self.symbol} on {self.date} - {self.price_change_pct:.2f}%"
-    
 class ContinuousVolumeIncrease(models.Model):
     symbol = models.CharField(max_length=255, null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
