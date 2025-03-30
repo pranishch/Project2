@@ -358,3 +358,19 @@ class BiggestInfluencedStock(models.Model):
         unique_together = ('symbol', 'calculation_date')
         ordering = ['calculation_date', 'rank']
   
+class TradingHaltDetection(models.Model):
+    symbol = models.CharField(max_length=255, null=True, blank=True)
+    detection_date = models.DateField(null=True, blank=True)
+    current_price = models.FloatField(null=True, blank=True)
+    previous_price = models.FloatField(null=True, blank=True)
+    pct_change = models.FloatField(null=True, blank=True)
+    direction = models.CharField(max_length=4, null=True, blank=True)  # 'UP' or 'DOWN'
+    turnover = models.FloatField(null=True, blank=True)
+    is_circuit = models.BooleanField(null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('symbol', 'detection_date')
+        
+    def __str__(self):
+        return f"{self.symbol} {self.direction} circuit ({self.pct_change:.2f}%) on {self.detection_date}"  
