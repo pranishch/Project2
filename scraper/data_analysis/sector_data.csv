@@ -1,0 +1,355 @@
+sector_description,symbol
+Commercial Banks,NABIL
+Commercial Banks,NIMB
+Commercial Banks,SCB
+Commercial Banks,HBL
+Commercial Banks,SBI
+Commercial Banks,EBL
+Commercial Banks,NICA
+Commercial Banks,MBL
+Commercial Banks,LSL
+Commercial Banks,KBL
+Commercial Banks,SBL
+Commercial Banks,SANIMA
+Commercial Banks,NMB
+Commercial Banks,PRVU
+Commercial Banks,GBIME
+Commercial Banks,CZBIL
+Commercial Banks,PCBL
+Commercial Banks,ADBL
+Commercial Banks,NBL
+Hotels And Tourism,SHL
+Hotels And Tourism,TRH
+Hotels And Tourism,OHL
+Hotels And Tourism,CGH
+Hotels And Tourism,KDL
+Hotels And Tourism,CITY
+Hydro Power,NHPC
+Hydro Power,BPCL
+Hydro Power,CHCL
+Hydro Power,AHPC
+Hydro Power,SHPC
+Hydro Power,RIDI
+Hydro Power,BARUN
+Hydro Power,API
+Hydro Power,NGPL
+Hydro Power,KKHC
+Hydro Power,DHPL
+Hydro Power,AKPL
+Hydro Power,SPDL
+Hydro Power,UMHL
+Hydro Power,CHL
+Hydro Power,HPPL
+Hydro Power,NHDL
+Hydro Power,RADHI
+Hydro Power,PMHPL
+Hydro Power,KPCL
+Hydro Power,AKJCL
+Hydro Power,JOSHI
+Hydro Power,UPPER
+Hydro Power,GHL
+Hydro Power,UPCL
+Hydro Power,MHNL
+Hydro Power,PPCL
+Hydro Power,HURJA
+Hydro Power,UNHPL
+Hydro Power,RHPL
+Hydro Power,SJCL
+Hydro Power,HDHPC
+Hydro Power,LEC
+Hydro Power,SSHL
+Hydro Power,MEN
+Hydro Power,UMRH
+Hydro Power,GLH
+Hydro Power,SHEL
+Hydro Power,RURU
+Hydro Power,MKJC
+Hydro Power,SAHAS
+Hydro Power,TPC
+Hydro Power,SPC
+Hydro Power,NYADI
+Hydro Power,MBJC
+Hydro Power,BNHC
+Hydro Power,GVL
+Hydro Power,BHL
+Hydro Power,RFPL
+Hydro Power,DORDI
+Hydro Power,BHDC
+Hydro Power,HHL
+Hydro Power,UHEWA
+Hydro Power,SGHC
+Hydro Power,MHL
+Hydro Power,USHEC
+Hydro Power,RHGCL
+Hydro Power,SPHL
+Hydro Power,PPL
+Hydro Power,SIKLES
+Hydro Power,EHPL
+Hydro Power,PHCL
+Hydro Power,BHPL
+Hydro Power,SMHL
+Hydro Power,SPL
+Hydro Power,SMH
+Hydro Power,MKHC
+Hydro Power,AHL
+Hydro Power,TAMOR
+Hydro Power,MHCL
+Hydro Power,SMJC
+Hydro Power,MAKAR
+Hydro Power,MKHL
+Hydro Power,DOLTI
+Hydro Power,BEDC
+Hydro Power,MCHL
+Hydro Power,IHL
+Hydro Power,MEL
+Hydro Power,RAWA
+Hydro Power,USHL
+Hydro Power,TSHL
+Hydro Power,KBSH
+Hydro Power,MEHL
+Hydro Power,ULHC
+Hydro Power,MANDU
+Hydro Power,BGWT
+Hydro Power,MSHL
+Hydro Power,MMKJL
+Hydro Power,TVCL
+Hydro Power,VLUCL
+Hydro Power,CKHL
+Tradings,STC
+Tradings,BBC
+Microfinance,NUBL
+Microfinance,CBBL
+Microfinance,DDBL
+Microfinance,SWBBL
+Microfinance,NMLBBL
+Microfinance,FMDBL
+Microfinance,SLBBL
+Microfinance,SKBBL
+Microfinance,GBLBS
+Microfinance,KMCDB
+Microfinance,MLBBL
+Microfinance,LLBS
+Microfinance,VLBS
+Microfinance,HLBSL
+Microfinance,MATRI
+Microfinance,JSLBB
+Microfinance,NMBMF
+Microfinance,GILB
+Microfinance,SWMF
+Microfinance,MERO
+Microfinance,NMFBS
+Microfinance,RSDC
+Microfinance,FOWAD
+Microfinance,SMATA
+Microfinance,MSLB
+Microfinance,SMB
+Microfinance,USLB
+Microfinance,WNLB
+Microfinance,NADEP
+Microfinance,ACLBSL
+Microfinance,SLBSL
+Microfinance,ALBSL
+Microfinance,GMFBS
+Microfinance,GLBSL
+Microfinance,SMFBS
+Microfinance,ILBS
+Microfinance,NICLBSL
+Microfinance,SMPDA
+Microfinance,MLBSL
+Microfinance,JBLB
+Microfinance,SAMAJ
+Microfinance,MLBS
+Microfinance,NESDO
+Microfinance,ULBSL
+Microfinance,CYCL
+Microfinance,AVYAN
+Microfinance,DLBS
+Microfinance,SHLB
+Microfinance,UNLB
+Microfinance,ANLB
+Development Banks,NABBC
+Development Banks,EDBL
+Development Banks,LBBL
+Development Banks,MDB
+Development Banks,MLBL
+Development Banks,GBBL
+Development Banks,JBBL
+Development Banks,CORBL
+Development Banks,KSBBL
+Development Banks,SADBL
+Development Banks,SHINE
+Development Banks,MNBBL
+Development Banks,SINDU
+Development Banks,GRDBL
+Development Banks,SAPDBL
+Non Life Insurance,NICL
+Non Life Insurance,RBCL
+Non Life Insurance,HEI
+Non Life Insurance,UAIL
+Non Life Insurance,SPIL
+Non Life Insurance,NIL
+Non Life Insurance,PRIN
+Non Life Insurance,SALICO
+Non Life Insurance,IGI
+Non Life Insurance,SICL
+Non Life Insurance,NLG
+Non Life Insurance,SGIC
+Life Insurance,NLICL
+Life Insurance,NLIC
+Life Insurance,LICN
+Life Insurance,ALICL
+Life Insurance,HLI
+Life Insurance,SJLIC
+Life Insurance,PMLI
+Life Insurance,SRLI
+Life Insurance,ILI
+Life Insurance,RNLI
+Life Insurance,SNLI
+Life Insurance,CLI
+Life Insurance,GMLI
+Finance,NFS
+Finance,GUFL
+Finance,BFC
+Finance,GFCL
+Finance,PFL
+Finance,SIFC
+Finance,CFCL
+Finance,JFL
+Finance,SFCL
+Finance,GMFIL
+Finance,ICFC
+Finance,PROFL
+Finance,MPFL
+Finance,MFIL
+Finance,RLFL
+Manufacturing And Processing,BNL
+Manufacturing And Processing,NLO
+Manufacturing And Processing,BNT
+Manufacturing And Processing,UNL
+Manufacturing And Processing,HDL
+Manufacturing And Processing,SHIVM
+Manufacturing And Processing,GCIL
+Manufacturing And Processing,SONA
+Manufacturing And Processing,SARBTM
+Investment,CIT
+Investment,HIDCL
+Investment,NRN
+Investment,NIFRA
+Investment,CHDC
+Investment,ENL
+Investment,HATHY
+Others,NTC
+Others,NRIC
+Others,NRM
+Others,MKCL
+Others,NWCL
+Others,HRL
+Mutual Fund,SEF
+Mutual Fund,NICGF
+Mutual Fund,CMF1
+Mutual Fund,NBF2
+Mutual Fund,SIGS2
+Mutual Fund,CMF2
+Mutual Fund,NICBF
+Mutual Fund,NMB50
+Mutual Fund,SFMF
+Mutual Fund,LUK
+Mutual Fund,SLCF
+Mutual Fund,KEF
+Mutual Fund,SBCF
+Mutual Fund,PSF
+Mutual Fund,NIBSF2
+Mutual Fund,NICSF
+Mutual Fund,RMF1
+Mutual Fund,MMF1
+Mutual Fund,NBF3
+Mutual Fund,NICFC
+Mutual Fund,KDBY
+Mutual Fund,GIBF1
+Mutual Fund,NSIF2
+Mutual Fund,NIBLGF
+Mutual Fund,SAGF
+Mutual Fund,SFEF
+Mutual Fund,PRSF
+Mutual Fund,RMF2
+Mutual Fund,SIGS3
+Mutual Fund,C30MF
+Mutual Fund,LVF2
+Mutual Fund,H8020
+Mutual Fund,NICGF2
+Mutual Fund,KSY
+Mutual Fund,NIBLSTF
+Mutual Fund,MNMF1
+Mutual Fund,GSY
+Debentures,NICAD85/86
+Debentures,SAND2085
+Debentures,NMBD2085
+Debentures,NIBD2082
+Debentures,NBBD2085
+Debentures,SBLD83
+Debentures,MBLD2085
+Debentures,NICD83/84
+Debentures,NICAD8283
+Debentures,SBLD2082
+Debentures,HBLD83
+Debentures,PBLD86
+Debentures,SRBLD83
+Debentures,LBLD86
+Debentures,ICFCD83
+Debentures,GWFD83
+Debentures,KBLD86
+Debentures,ADBLD83
+Debentures,CIZBD86
+Debentures,SBIBD86
+Debentures,NBLD82
+Debentures,PBLD84
+Debentures,SBLD84
+Debentures,SBD87
+Debentures,NIBD84
+Debentures,MFLD85
+Debentures,NCCD86
+Debentures,KSBBLD87
+Debentures,NBLD87
+Debentures,ADBLB
+Debentures,BOKD86
+Debentures,PBLD87
+Debentures,NMBD87/88
+Debentures,NMBEB92/93
+Debentures,MND84/85
+Debentures,LBLD88
+Debentures,PBD85
+Debentures,SDBD87
+Debentures,MBLD87
+Debentures,NICD88
+Debentures,RBBD83
+Debentures,GBILD86/87
+Debentures,JBBD87
+Debentures,NBLD85
+Debentures,ADBLB86
+Debentures,ADBLB87
+Debentures,GBBD85
+Debentures,CBLD88
+Debentures,EBLD86
+Debentures,CCBD88
+Debentures,PBD88
+Debentures,SBLD89
+Debentures,NMBUR93/94
+Debentures,SBD89
+Debentures,SBID83
+Debentures,PBD84
+Debentures,EBLD85
+Debentures,KBLD89
+Debentures,BOKD86KA
+Debentures,HBLD86
+Debentures,NIFRAUR85/86
+Debentures,EBLEB89
+Debentures,GBILD84/85
+Debentures,SCBD
+Debentures,NMBD89/90
+Debentures,MLBLD89
+Debentures,LBBLD89
+Debentures,SBID89
+Debentures,KBLD90
+Debentures,CIZBD90
+Debentures,NABILD87
+Debentures,NIMBD90
